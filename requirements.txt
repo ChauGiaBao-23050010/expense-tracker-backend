@@ -1,0 +1,20 @@
+# FastAPI and server
+fastapi
+uvicorn[standard]
+
+# Database (ORM, PostgreSQL driver, Migration)
+sqlalchemy
+psycopg2-binary
+alembic
+
+# Security (Password hashing, JWT)
+passlib[bcrypt]
+python-jose[cryptography]
+
+# Environment variables
+python-dotenv
+
+# Pydantic for data validation
+pydantic
+pydantic-settings
+email-validator
