@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 import datetime
+from fastapi.security import OAuth2PasswordRequestForm
 
 # --- Schema Cơ bản ---
 # Chứa các trường chung nhất của một User
