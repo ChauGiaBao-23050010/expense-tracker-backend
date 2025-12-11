@@ -1,10 +1,11 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 import datetime
+from decimal import Decimal # ĐÃ THÊM IMPORT DECIMAL
 from app.database.models import TransactionType
 
 class TransactionBase(BaseModel):
-    amount: float = Field(..., gt=0) # Số tiền luôn dương
+    amount: Decimal = Field(..., gt=0) # ĐÃ SỬA TỪ float SANG Decimal
     type: TransactionType
     description: Optional[str] = None
     transaction_date: datetime.date
@@ -15,7 +16,7 @@ class TransactionCreate(TransactionBase):
     category_id: Optional[int] = None
 
 class TransactionUpdate(BaseModel):
-    amount: Optional[float] = None
+    amount: Optional[Decimal] = None # ĐÃ SỬA TỪ float SANG Decimal
     description: Optional[str] = None
     category_id: Optional[int] = None
 

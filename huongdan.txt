@@ -8,10 +8,7 @@ uvicorn app.main:app --reload
 http://localhost:8000/docs
 
 {
-  "username": "baotest",
-  "email": "bao.test@example.com",
-  "full_name": "Chau Gia Bao",
-  "password": "password123"
+  
 }
 
 Bearer 
