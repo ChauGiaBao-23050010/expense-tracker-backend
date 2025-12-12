@@ -5,8 +5,8 @@ from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 from fastapi.staticfiles import StaticFiles # Import cần thiết nếu bạn muốn phục vụ file tĩnh
 
-# Import tất cả các router: auth, users, categories, accounts, transactions
-from app.routers import auth, users, categories, accounts, transactions 
+# Import tất cả các router: auth, users, categories, accounts, transactions, reports
+from app.routers import auth, users, categories, accounts, transactions, reports # ĐÃ THÊM reports
 
 # KHỞI TẠO APP VỚI CẤU HÌNH TÙY CHỈNH CHO SECURITY SCHEME
 app = FastAPI(
@@ -80,12 +80,13 @@ async def custom_swagger_ui_html():
     )
 
 # --- Kết nối router vào app chính ---
-# Đã bao gồm tất cả 5 router: Auth, Users, Categories, Accounts, Transactions
+# Đã bao gồm tất cả 6 router: Auth, Users, Categories, Accounts, Transactions, Reports
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(users.router, prefix="/users", tags=["Users"])
 app.include_router(categories.router, prefix="/categories", tags=["Categories"])
 app.include_router(accounts.router, prefix="/accounts", tags=["Accounts"]) 
 app.include_router(transactions.router, prefix="/transactions", tags=["Transactions"])
+app.include_router(reports.router, prefix="/reports", tags=["Reports"]) # ĐÃ THÊM REPORTS
 
 @app.get("/")
 def read_root():

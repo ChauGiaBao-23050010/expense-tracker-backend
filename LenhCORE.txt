@@ -1,5 +1,11 @@
 
-cd backend/frontend
+cd ../backend cd ../frontend
+git add . 
+git commit -m "feat: "
+git push origin main
+
+git fetch origin
+git reset --hard origin/main
 
 .\venv\Scripts\Activate
 
