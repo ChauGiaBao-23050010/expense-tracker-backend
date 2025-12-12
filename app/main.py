@@ -20,14 +20,11 @@ app = FastAPI(
 # --- THÊM PHẦN CẤU HÌNH CORS ---
 # Danh sách các nguồn (origins) được phép truy cập.
 origins = [
-    "http://localhost",
-    "http://localhost:8000",
-    "http://localhost:5500",
-    "http://localhost:3000",
-    "http://127.0.0.1:8000",
+    "http://localhost:8000",   # Backend của bạn
+    "http://localhost:5500",   # Frontend Live Server (cổng cũ)
     "http://127.0.0.1:5500",
-    "http://127.0.0.1:3000",
-    # Bạn có thể thêm địa chỉ của frontend sau này
+    "http://localhost:5501",   # Frontend Live Server (cổng mới)
+    "http://127.0.0.1:5501",
 ]
 
 app.add_middleware(
