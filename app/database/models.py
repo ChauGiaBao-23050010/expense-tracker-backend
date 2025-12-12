@@ -69,6 +69,11 @@ class Category(Base):
     name = Column(String, nullable=False)
     icon = Column(String)
     is_default = Column(Boolean, default=False)
+    
+    # --- DÒNG ĐƯỢC THÊM MỚI ---
+    # Phân loại danh mục thuộc nhóm Thu nhập, Chi tiêu hoặc Chuyển khoản
+    type = Column(SQLEnum(TransactionType), default=TransactionType.EXPENSE, nullable=False) 
+    # --------------------------
 
     # Relationships
     owner = relationship("User", back_populates="categories")
@@ -76,7 +81,6 @@ class Category(Base):
     budgets = relationship("Budget", back_populates="category")
     parent = relationship("Category", remote_side=[id], back_populates="children")
     children = relationship("Category", back_populates="parent")
-
 
 class Transaction(Base):
     __tablename__ = "transactions"

@@ -1,18 +1,17 @@
 from pydantic import BaseModel, Field
 from typing import Optional
+from app.database.models import TransactionType # Import Enum từ models
 
 # --- Schema Cơ bản ---
-# Các trường này sẽ được dùng chung
 class CategoryBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     icon: Optional[str] = None
-    # parent_id sẽ được xử lý ở logic, không cần người dùng nhập trực tiếp
-    # is_default cũng sẽ do hệ thống quản lý
+    # Thêm trường type với giá trị mặc định là CHI TIÊU
+    type: TransactionType = TransactionType.EXPENSE 
 
 # --- Schema cho việc Tạo Category (Dữ liệu nhận vào) ---
 class CategoryCreate(CategoryBase):
-    pass # Hiện tại không cần thêm trường nào khác
-
+    pass 
 
 # --- Schema cho việc Trả về Dữ liệu (Dữ liệu trả ra) ---
 class CategoryResponse(CategoryBase):
@@ -21,4 +20,4 @@ class CategoryResponse(CategoryBase):
     parent_id: Optional[int] = None
 
     class Config:
-        from_attributes = True # Đã sửa từ orm_mode
+        from_attributes = True

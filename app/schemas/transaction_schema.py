@@ -16,10 +16,13 @@ class TransactionCreate(TransactionBase):
     category_id: Optional[int] = None
 
 class TransactionUpdate(BaseModel):
-    amount: Optional[Decimal] = None # ĐÃ SỬA TỪ float SANG Decimal
+    amount: Optional[Decimal] = None
     description: Optional[str] = None
     category_id: Optional[int] = None
-
+    # THÊM 2 DÒNG NÀY:
+    source_account_id: Optional[int] = None
+    transaction_date: Optional[datetime.date] = None
+    type: Optional[TransactionType] = None
 class TransactionResponse(TransactionBase):
     id: int
     source_account_id: int
