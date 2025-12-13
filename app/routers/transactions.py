@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List, Optional # Cần import Optional
+from typing import List, Optional 
+from datetime import date # Nhớ import thêm date
 
 from app.database import connection, models
 from app.schemas import transaction_schema
@@ -24,7 +25,6 @@ def create_transaction(
         if not category or category.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="Không có quyền truy cập vào danh mục.")
 
-    # Logic cập nhật số dư: Pydantic (schema) đã đảm bảo transaction_in.amount là Decimal
     if transaction_in.type == models.TransactionType.EXPENSE:
         source_account.current_balance -= transaction_in.amount
     elif transaction_in.type == models.TransactionType.INCOME:
@@ -49,42 +49,58 @@ def create_transaction(
     return new_transaction
 
 
-# --- 2. LẤY DANH SÁCH GIAO DỊCH (ĐÃ CẬP NHẬT để hỗ trợ Optional account_id) ---
+# --- 2. LẤY DANH SÁCH GIAO DỊCH (ĐÃ CẬP NHẬT để hỗ trợ Optional account_id và bộ lọc nâng cao) ---
 @router.get("/", response_model=List[transaction_schema.TransactionResponse])
 def read_transactions(
-    account_id: Optional[int] = None, # <-- Sửa thành Optional, mặc định là None
+    account_id: Optional[int] = None,
+    category_id: Optional[int] = None,
+    type: Optional[models.TransactionType] = None,
+    search: Optional[str] = None,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(connection.get_db),
     current_user: models.User = Depends(deps.get_current_user)
 ):
     """
-    Lấy danh sách giao dịch. 
-    - Nếu có account_id: Lấy giao dịch của ví đó.
-    - Nếu không có: Lấy tất cả giao dịch của User.
+    Lấy danh sách giao dịch với bộ lọc nâng cao.
     """
-    # Bắt đầu truy vấn từ bảng Transaction
-    query = db.query(models.Transaction)
+    # 1. Base Query: Join với Account để lọc theo User
+    query = db.query(models.Transaction).join(
+        models.Account, 
+        models.Transaction.source_account_id == models.Account.id
+    ).filter(models.Account.user_id == current_user.id)
 
-    # JOIN với bảng Account để lọc theo User (quan trọng để bảo mật)
-    # Chúng ta cần đảm bảo giao dịch thuộc về tài khoản CỦA USER đó
-    query = query.join(models.Account, models.Transaction.source_account_id == models.Account.id)\
-                 .filter(models.Account.user_id == current_user.id)
-
-    # Nếu có lọc theo account_id cụ thể
+    # 2. Áp dụng các bộ lọc nếu có
     if account_id:
-        # Kiểm tra quyền sở hữu account đó trước
+        # Kiểm tra quyền sở hữu (dù đã join, nhưng kiểm tra tường minh tốt hơn)
         account = db.query(models.Account).filter(models.Account.id == account_id).first()
         if not account or account.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="Không có quyền truy cập tài khoản này")
-        
-        # Thêm điều kiện lọc (Source hoặc Destination đều tính là giao dịch của ví đó)
+
         query = query.filter(
             (models.Transaction.source_account_id == account_id) |
             (models.Transaction.destination_account_id == account_id)
         )
+    
+    if category_id:
+        query = query.filter(models.Transaction.category_id == category_id)
+        
+    if type:
+        query = query.filter(models.Transaction.type == type)
+        
+    if search:
+        # Tìm kiếm không phân biệt hoa thường trong description
+        query = query.filter(models.Transaction.description.ilike(f"%{search}%"))
+        
+    if start_date:
+        query = query.filter(models.Transaction.transaction_date >= start_date)
+        
+    if end_date:
+        query = query.filter(models.Transaction.transaction_date <= end_date)
 
-    # Sắp xếp và phân trang
+    # 3. Sắp xếp và Phân trang
     transactions = query.order_by(models.Transaction.transaction_date.desc())\
                          .offset(skip).limit(limit).all()
     
