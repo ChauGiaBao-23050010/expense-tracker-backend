@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import mới cho cấu hình OpenAPI tùy chỉnh
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
-from fastapi.staticfiles import StaticFiles # Import cần thiết nếu bạn muốn phục vụ file tĩnh
+from fastapi.staticfiles import StaticFiles 
 
 # Import tất cả các router: auth, users, categories, accounts, transactions, reports
 from app.routers import auth, users, categories, accounts, transactions, reports # ĐÃ THÊM reports
@@ -20,10 +20,10 @@ app = FastAPI(
 # --- THÊM PHẦN CẤU HÌNH CORS ---
 # Danh sách các nguồn (origins) được phép truy cập.
 origins = [
-    "http://localhost:8000",   # Backend của bạn
-    "http://localhost:5500",   # Frontend Live Server (cổng cũ)
+    "http://localhost:8000", 
+    "http://localhost:5500", 
     "http://127.0.0.1:5500",
-    "http://localhost:5501",   # Frontend Live Server (cổng mới)
+    "http://localhost:5501", 
     "http://127.0.0.1:5501",
 ]
 
@@ -31,8 +31,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"], # Cho phép tất cả các phương thức (GET, POST, etc.)
-    allow_headers=["*"], # Cho phép tất cả các header
+    allow_methods=["*"], 
+    allow_headers=["*"], 
 )
 # --- HẾT PHẦN CẤU HÌNH CORS ---
 

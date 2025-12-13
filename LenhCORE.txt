@@ -12,19 +12,3 @@ git reset --hard origin/main
 uvicorn app.main:app --reload
 
 http://localhost:8000/docs
-
-{
-  
-}
-
-Bearer 
-
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjU0NTA4MjMsInN1YiI6IjEifQ.SDUJcnp2164BSLOcvCsx3QuFnB2FdE2o0PqL00rCrOY",
-  "token_type": "bearer"
-}
-
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjU0NTExMDYsInN1YiI6IjIifQ.NXPVsKUtwSilHnuTXT6wzOHtY8s9lNo43M0W5muEmu0",
-  "token_type": "bearer"
-}
