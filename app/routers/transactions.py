@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List, Optional # Cần import Optional
 
 from app.database import connection, models
 from app.schemas import transaction_schema
@@ -24,6 +24,7 @@ def create_transaction(
         if not category or category.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="Không có quyền truy cập vào danh mục.")
 
+    # Logic cập nhật số dư: Pydantic (schema) đã đảm bảo transaction_in.amount là Decimal
     if transaction_in.type == models.TransactionType.EXPENSE:
         source_account.current_balance -= transaction_in.amount
     elif transaction_in.type == models.TransactionType.INCOME:
@@ -48,23 +49,44 @@ def create_transaction(
     return new_transaction
 
 
-# --- 2. LẤY DANH SÁCH GIAO DỊCH (Giữ nguyên) ---
+# --- 2. LẤY DANH SÁCH GIAO DỊCH (ĐÃ CẬP NHẬT để hỗ trợ Optional account_id) ---
 @router.get("/", response_model=List[transaction_schema.TransactionResponse])
-def read_transactions_for_account(
-    account_id: int,
+def read_transactions(
+    account_id: Optional[int] = None, # <-- Sửa thành Optional, mặc định là None
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(connection.get_db),
     current_user: models.User = Depends(deps.get_current_user)
 ):
-    account = db.query(models.Account).filter(models.Account.id == account_id).first()
-    if not account or account.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Không có quyền truy cập vào tài khoản này.")
+    """
+    Lấy danh sách giao dịch. 
+    - Nếu có account_id: Lấy giao dịch của ví đó.
+    - Nếu không có: Lấy tất cả giao dịch của User.
+    """
+    # Bắt đầu truy vấn từ bảng Transaction
+    query = db.query(models.Transaction)
 
-    transactions = db.query(models.Transaction).filter(
-        (models.Transaction.source_account_id == account_id) |
-        (models.Transaction.destination_account_id == account_id)
-    ).order_by(models.Transaction.transaction_date.desc()).offset(skip).limit(limit).all()
+    # JOIN với bảng Account để lọc theo User (quan trọng để bảo mật)
+    # Chúng ta cần đảm bảo giao dịch thuộc về tài khoản CỦA USER đó
+    query = query.join(models.Account, models.Transaction.source_account_id == models.Account.id)\
+                 .filter(models.Account.user_id == current_user.id)
+
+    # Nếu có lọc theo account_id cụ thể
+    if account_id:
+        # Kiểm tra quyền sở hữu account đó trước
+        account = db.query(models.Account).filter(models.Account.id == account_id).first()
+        if not account or account.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Không có quyền truy cập tài khoản này")
+        
+        # Thêm điều kiện lọc (Source hoặc Destination đều tính là giao dịch của ví đó)
+        query = query.filter(
+            (models.Transaction.source_account_id == account_id) |
+            (models.Transaction.destination_account_id == account_id)
+        )
+
+    # Sắp xếp và phân trang
+    transactions = query.order_by(models.Transaction.transaction_date.desc())\
+                         .offset(skip).limit(limit).all()
     
     return transactions
 
@@ -85,6 +107,7 @@ def update_transaction(
     # 2. Lấy tài khoản cũ để hoàn tác số dư
     old_account = db.query(models.Account).filter(models.Account.id == transaction.source_account_id).first()
     if not old_account or old_account.user_id != current_user.id:
+        # Nếu tài khoản cũ thuộc về user khác (không nên xảy ra nếu logic tạo đúng), hoặc không tồn tại
         raise HTTPException(status_code=403, detail="Không quyền truy cập tài khoản cũ")
 
     # --- BƯỚC 3: HOÀN TÁC GIAO DỊCH CŨ (Revert) ---
@@ -140,7 +163,7 @@ def delete_transaction(
     if not account or account.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Không có quyền xóa giao dịch này")
 
-    # TỐI ƯU: Nên thêm logic Revert số dư ở đây tương tự như Update trước khi xóa
+    # TỐI ƯU: Logic Revert số dư trước khi xóa
     if transaction.type == models.TransactionType.EXPENSE:
         account.current_balance += transaction.amount
     elif transaction.type == models.TransactionType.INCOME:
