@@ -33,6 +33,9 @@ origins = [
     "http://127.0.0.1:5500",
     "http://localhost:5500",
     "http://127.0.0.1:5501",
+    "https://expense-tracker-frontend-virid-nine.vercel.app",
+    "expense-tracker-frontend-git-main-baos-projects-24c3f38e.vercel.app"
+    "expense-tracker-frontend-bnu7d8k28-baos-projects-24c3f38e.vercel.app",
     "http://localhost:5501",
 ]
 
