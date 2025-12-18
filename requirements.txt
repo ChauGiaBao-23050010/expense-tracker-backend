@@ -1,0 +1,30 @@
+# FastAPI and server
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Database (ORM, PostgreSQL driver, Migration)
+sqlalchemy
+psycopg2-binary
+alembic
+
+# Data processing and Excel
+pandas
+openpyxl
+
+# Security (Password hashing, JWT)
+passlib[bcrypt]
+python-jose[cryptography]
+
+# Environment variables
+python-dotenv
+
+# Pydantic for data validation
+pydantic
+pydantic-settings
+email-validator
+
+# Explicit versioning (nếu cần)
+bcrypt==3.2.2
+passlib==1.7.4
+python-jose[cryptography]

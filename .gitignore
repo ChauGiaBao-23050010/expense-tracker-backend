@@ -1,0 +1,19 @@
+# Virtual Environment
+venv/
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+.env.*
+
+# IDE settings
+.vscode/
+.idea/
+
+# Database files (for SQLite development)
+*.db
+*.db-journal
+
+# Alembic temp files
+.alembic_version
