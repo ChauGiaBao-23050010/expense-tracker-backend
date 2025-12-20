@@ -91,4 +91,4 @@
 ## 🔗 Liên kết Frontend
 
 *   **Frontend Repository:** https://github.com/ChauGiaBao-23050010/expense-tracker-frontend
-*   **Deployed Frontend:** https://expense-tracker-frontend-h1jsilypt-baos-projects-24c3f38e.vercel.app/
+*   **Deployed Frontend:** https://expense-tracker-frontend-virid-nine.vercel.app/
